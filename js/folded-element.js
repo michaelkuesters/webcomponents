@@ -141,16 +141,14 @@ class AccordionElement extends HTMLElement{
 
      this.handleImage();
 
-     var title = this.getAttribute("title");
-
-     this.SH('[name="title"]').innerText = title;
+     this.SH('[name="title"]').innerText = this.getAttribute("title");
      this.SH('[name="content"]').innerHTML = this.innerHTML;
 
-         if (this.getAttribute('content-orientation') != null) {
+     if (this.getAttribute('content-orientation') != null) {
             this.SH('[name="content"]').classList.add(this.getAttribute('content-orientation'));
             }
-
-         this.checkForOpen();
+     this.checkForOpen();
+   
      }
 
 handleImage(){
@@ -177,10 +175,6 @@ handleImage(){
         this.setDetailsVisible();
         this.removeAttribute('open');
 }
-
- attributeChangedCallback() {
- checkForOpen(this);
- }
 
  connectedCallback(){
    this.shadowRoot.addEventListener('click', _e => {
