@@ -127,60 +127,72 @@ template.innerHTML = `
 </div>
 `;
 
-class AccordionElement extends HTMLElement{
+class AccordionElement extends HTMLElement {
 
- SH(query){
-     return this.shadowRoot.querySelector(query);
- }
+    SH(query) {
+        return this.shadowRoot.querySelector(query);
+    }
+    SH_classes(query) {
+        return this.SH(query).classList;
+    }
 
- constructor(){
-     super();
-     this.attachShadow({ mode: 'open'});
-     var shadow = this.shadowRoot;
-     shadow.appendChild(template.content.cloneNode(true));
+    constructor() {
+        super();
+        this.attachShadow({
+            mode: 'open'
+        });
+        var shadow = this.shadowRoot;
+        shadow.appendChild(template.content.cloneNode(true));
+        this.populateElement();
+    }
 
-     this.handleImage();
+    populateElement() {
+        this.handleImage();
+        this.SH('[name="title"]').innerText = this.getAttribute("title");
+        this.SH('[name="content"]').innerHTML = this.innerHTML;
+        this.SH_classes('[name="content"]').add(this.getAttribute('content-orientation'));
+        this.checkForOpen();
+    }
 
-     this.SH('[name="title"]').innerText = this.getAttribute("title");
-     this.SH('[name="content"]').innerHTML = this.innerHTML;
+    appendContent(text)
+    {
+        var content = document.createElement('div');
+        content.innerHTML=text;
+        this.SH('[name="content"]').appendChild(content);
+    }
 
-     if (this.getAttribute('content-orientation') != null) {
-            this.SH('[name="content"]').classList.add(this.getAttribute('content-orientation'));
-            }
-     this.checkForOpen();
-   
-     }
+    handleImage() {
+        var img = this.getAttribute("img");
+        if (img == null) {
+            this.SH('[name="img"]').remove();
+            return;
+        }
+        this.SH('[name="img"]').setAttribute("src", img);
+    }
 
-handleImage(){
-     var img = this.getAttribute("img");
-     if (img == null) {
-        this.SH('[name="img"]').remove();
-        return;
-     }
-     this.SH('[name="img"]').setAttribute("src", img);
-}
+    toggleDetailsVisible() {
+        this.SH_classes(".click-icon").toggle("icon-clicked");
+        this.SH_classes(".content").toggle("d-none");
+    }
 
- toggleDetailsVisible(){
-         this.SH(".click-icon").classList.toggle("icon-clicked");
-         this.SH(".content").classList.toggle("d-none");
- }
+    setDetailsVisible() {
+        this.SH_classes(".click-icon").add("icon-clicked");
+        this.SH_classes(".content").remove("d-none");
+    }
 
- setDetailsVisible(){
-         this.SH(".click-icon").classList.add("icon-clicked");
-         this.SH(".content").classList.remove("d-none");
-     }
-
- checkForOpen(){
-        if (this.getAttribute('open') == null) {return;}
+    checkForOpen() {
+        if (this.getAttribute('open') == null) {
+            return;
+        }
         this.setDetailsVisible();
         this.removeAttribute('open');
-}
+    }
 
- connectedCallback(){
-   this.shadowRoot.addEventListener('click', _e => {
-        this.toggleDetailsVisible();
-       });
-     }
+    connectedCallback() {
+        this.shadowRoot.addEventListener('click', _e => {
+            this.toggleDetailsVisible();
+        });
+    }
 }
 
 window.customElements.define('accordion-element', AccordionElement);
