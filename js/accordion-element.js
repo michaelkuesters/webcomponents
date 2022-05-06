@@ -189,7 +189,7 @@ class AccordionElement extends HTMLElement {
     }
 
     connectedCallback() {
-        this.SH_classes(".headline").addEventListener('click', _e => {
+        this.shadowRoot.addEventListener('click', _e => {
             this.toggleDetailsVisible();
         });
     }
