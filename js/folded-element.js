@@ -74,12 +74,12 @@ template.innerHTML = `
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
-.folded-image-container {
+.accordion-image-container {
   display: flex;
   vertical-align: middle !important;
 }
 
-.folded-image img {
+.accordion-image img {
   width: 2.5em;
   height: 2.5em;
   margin-left:0.2em;
@@ -90,13 +90,13 @@ template.innerHTML = `
 }
 
 @media only screen and (max-width: 37.5em) {
-  .folded-image img {
+  .accordion-image img {
     float:left;
     width: 3em;
     height: 3em;
   }
 
-.folded-image {
+.accordion-image {
      vertical-align: middle !important;
      width: 33.33%
      float:left;
@@ -106,7 +106,7 @@ template.innerHTML = `
 }
 
 @media only screen and (max-width: 200px) {
-.folded-image img {
+.accordion-image img {
     display:none;
   }
 }
@@ -115,7 +115,7 @@ template.innerHTML = `
 <div class="col mb-5">
   <div class="container">
   <div class="row">
-    <div class="folded-image" >
+    <div class="accordion-image" >
       <img name="img"/></div>
       <div class="title" >
         <div class="headline" name="title"></div>
@@ -127,8 +127,11 @@ template.innerHTML = `
 </div>
 `;
 
-class FoldedElement extends HTMLElement{
+class AccordionElement extends HTMLElement{
 
+ SH(query){
+     return this.shadowRoot.querySelector(query);
+ }
 
  constructor(){
      super();
@@ -136,33 +139,54 @@ class FoldedElement extends HTMLElement{
      var shadow = this.shadowRoot;
      shadow.appendChild(template.content.cloneNode(true));
 
+     this.handleImage();
+
      var title = this.getAttribute("title");
 
+     this.SH('[name="title"]').innerText = title;
+     this.SH('[name="content"]').innerHTML = this.innerHTML;
+
+         if (this.getAttribute('content-orientation') != null) {
+            this.SH('[name="content"]').classList.add(this.getAttribute('content-orientation'));
+            }
+
+         this.checkForOpen();
+     }
+
+handleImage(){
      var img = this.getAttribute("img");
      if (img == null) {
-        shadow.querySelector('[name="img"]').classList.add("d-none");
-     } else
-     {
-        shadow.querySelector('[name="img"]').setAttribute("src", img);
+        this.SH('[name="img"]').remove();
+        return;
+     }
+     this.SH('[name="img"]').setAttribute("src", img);
+}
+
+ toggleDetailsVisible(){
+         this.SH(".click-icon").classList.toggle("icon-clicked");
+         this.SH(".content").classList.toggle("d-none");
+ }
+
+ setDetailsVisible(){
+         this.SH(".click-icon").classList.add("icon-clicked");
+         this.SH(".content").classList.remove("d-none");
      }
 
+ checkForOpen(){
+        if (this.getAttribute('open') == null) {return;}
+        this.setDetailsVisible();
+        this.removeAttribute('open');
+}
 
-
-     shadow.querySelector('[name="title"]').innerText = title;
-     shadow.querySelector('[name="content"]').innerHTML = this.innerHTML;
-
-     if (this.getAttribute('content-orientation') != null) {
-        shadow.querySelector('[name="content"]').classList.add(this.getAttribute('content-orientation'));
-        }
-
-     }
+ attributeChangedCallback() {
+ checkForOpen(this);
+ }
 
  connectedCallback(){
    this.shadowRoot.addEventListener('click', _e => {
-             this.shadowRoot.querySelector(".click-icon").classList.toggle("icon-clicked");
-             this.shadowRoot.querySelector(".content").classList.toggle("d-none");
+        this.toggleDetailsVisible();
        });
      }
 }
 
-window.customElements.define('folded-element', FoldedElement);
+window.customElements.define('accordion-element', AccordionElement);
